@@ -46,6 +46,45 @@ const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS as `0x${string}`
 const PUZZLE_IMAGE_URL = 'https://green-unfair-dolphin-882.mypinata.cloud/ipfs/bafybeic4py3mrsblsu67nz54wdrxppos4n3a2lg7ngdpmz2i577qrw3w5u'
 const SOMNIA_CHAIN_ID = 5031
 
+// Функция для "очистки" сообщений об ошибках
+const prettifyError = (error: string): string => {
+  const errorLower = error.toLowerCase()
+  
+  // Пользователь отменил транзакцию
+  if (errorLower.includes('user rejected') || 
+      errorLower.includes('user denied') || 
+      errorLower.includes('cancelled by user')) {
+    return '❌ Transaction cancelled. You denied the signature in your wallet. No funds were spent.'
+  }
+  
+  // Недостаточно средств
+  if (errorLower.includes('insufficient funds') || 
+      errorLower.includes('insufficient balance')) {
+    return '💰 Insufficient funds. You need more SOMI to cover the mint price and gas fees.'
+  }
+  
+  // Уже заминтил
+  if (errorLower.includes('already minted') || 
+      errorLower.includes('already claimed')) {
+    return '🎯 You have already minted your NFT. Each wallet can only mint once.'
+  }
+  
+  // Коллекция закончилась
+  if (errorLower.includes('max supply') || 
+      errorLower.includes('sold out')) {
+    return '😞 Collection sold out. All NFTs have been minted.'
+  }
+  
+  // Неправильная сеть
+  if (errorLower.includes('wrong network') || 
+      errorLower.includes('unsupported chain')) {
+    return '🔗 Please switch to Somnia Network to continue.'
+  }
+  
+  // Для остальных ошибок - показываем первые 150 символов
+  return error.split('\n')[0].substring(0, 150) + (error.length > 150 ? '...' : '')
+}
+
 export function NFTMinter() {
   const { address, isConnected, chain } = useAccount()
   const { switchChain } = useSwitchChain()
@@ -301,17 +340,56 @@ export function NFTMinter() {
         </div>
       )}
 
+      {/* УЛУЧШЕННОЕ отображение ошибок */}
       {error && (
         <div style={{ 
           marginTop: '20px', 
-          padding: '15px', 
+          padding: '20px', 
           backgroundColor: 'rgba(254, 242, 242, 0.1)',
           border: '1px solid rgba(254, 202, 202, 0.3)',
-          borderRadius: '8px'
+          borderRadius: '12px',
+          textAlign: 'center'
         }}>
-          <p style={{ margin: 0, color: '#ef4444' }}>
-            <strong>Error:</strong> {error.message}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: '10px'
+          }}>
+            <span style={{ fontSize: '24px', marginRight: '10px' }}>
+              {error.message.toLowerCase().includes('user') ? '🚫' : '⚠️'}
+            </span>
+            <h4 style={{ margin: 0, color: '#ef4444', fontSize: '18px' }}>
+              {error.message.toLowerCase().includes('user') ? 'Transaction Cancelled' : 'Transaction Error'}
+            </h4>
+          </div>
+          <p style={{ 
+            margin: 0, 
+            color: 'rgba(255, 255, 255, 0.9)',
+            fontSize: '16px',
+            lineHeight: '1.5'
+          }}>
+            {prettifyError(error.message)}
           </p>
+          
+          {/* Дополнительные советы */}
+          {error.message.toLowerCase().includes('user') && (
+            <div style={{
+              marginTop: '15px',
+              padding: '15px',
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              border: '1px solid rgba(59, 130, 246, 0.3)',
+              borderRadius: '8px'
+            }}>
+              <p style={{ 
+                margin: 0, 
+                color: 'rgba(255, 255, 255, 0.8)',
+                fontSize: '14px'
+              }}>
+                💡 <strong>Tip:</strong> Click the mint button again when you're ready to try the transaction.
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>

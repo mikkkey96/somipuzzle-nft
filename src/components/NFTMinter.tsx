@@ -95,7 +95,6 @@ export function NFTMinter() {
       })
     } catch (err) {
       console.error('Minting error:', err)
-      alert('Minting failed! Check console for details.')
     }
   }
 
@@ -108,9 +107,9 @@ export function NFTMinter() {
 
   if (!isConnected) {
     return (
-      <div style={{ 
-        textAlign: 'center', 
-        padding: '40px', 
+      <div style={{
+        textAlign: 'center',
+        padding: '40px',
         border: '2px dashed rgba(255, 255, 255, 0.3)',
         borderRadius: '12px',
         backgroundColor: 'rgba(255, 255, 255, 0.1)',
@@ -122,7 +121,6 @@ export function NFTMinter() {
     )
   }
 
-  // Проверка сети
   if (chain?.id !== SOMNIA_CHAIN_ID) {
     return (
       <div style={{
@@ -154,7 +152,6 @@ export function NFTMinter() {
     )
   }
 
-  // Проверяем, заминтил ли пользователь уже NFT
   if (hasAlreadyMinted) {
     return (
       <div style={{
@@ -169,14 +166,10 @@ export function NFTMinter() {
         <p style={{ fontSize: '16px' }}>
           You have already minted your SomiPuzzle NFT!
         </p>
-        <p style={{ fontSize: '14px', opacity: 0.8 }}>
-          Each wallet can only mint one NFT to keep the collection fair.
-        </p>
       </div>
     )
   }
 
-  // Проверяем достигнут ли максимальный supply
   const currentSupply = Number(totalSupply || 0)
   const maxSupplyNum = Number(maxSupply || 10000)
   
@@ -192,10 +185,7 @@ export function NFTMinter() {
       }}>
         <h3 style={{ color: '#ef4444' }}>😞 Collection Sold Out</h3>
         <p style={{ fontSize: '16px' }}>
-          All 10,000 SomiPuzzle NFTs have been minted!
-        </p>
-        <p style={{ fontSize: '14px', opacity: 0.8 }}>
-          Thank you for your interest in our collection.
+          All {maxSupplyNum.toLocaleString()} SomiPuzzle NFTs have been minted!
         </p>
       </div>
     )
@@ -215,81 +205,6 @@ export function NFTMinter() {
       <h2 style={{ textAlign: 'center', marginBottom: '20px', color: 'white' }}>
         🧩 SomiPuzzle Challenge
       </h2>
-      
-      {/* Статистика коллекции */}
-      <div style={{
-        marginBottom: '20px',
-        padding: '20px',
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-        borderRadius: '12px',
-        border: '1px solid rgba(255, 255, 255, 0.1)'
-      }}>
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          marginBottom: '15px'
-        }}>
-          <div>
-            <h4 style={{ margin: '0 0 5px 0', color: 'white' }}>Collection Progress</h4>
-            <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255, 255, 255, 0.7)' }}>
-              {currentSupply} / {maxSupplyNum.toLocaleString()} minted
-            </p>
-          </div>
-          <div style={{
-            fontSize: '24px',
-            fontWeight: 'bold',
-            color: '#6366f1'
-          }}>
-            {Math.round((currentSupply / maxSupplyNum) * 100)}%
-          </div>
-        </div>
-        
-        {/* Progress bar */}
-        <div style={{
-          width: '100%',
-          height: '8px',
-          backgroundColor: 'rgba(255, 255, 255, 0.1)',
-          borderRadius: '4px',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            width: `${(currentSupply / maxSupplyNum) * 100}%`,
-            height: '100%',
-            backgroundColor: '#6366f1',
-            transition: 'width 0.3s ease'
-          }} />
-        </div>
-      </div>
-
-      {/* Информация о цене */}
-      <div style={{
-        marginBottom: '25px',
-        padding: '20px',
-        backgroundColor: 'rgba(14, 165, 233, 0.1)',
-        borderRadius: '12px',
-        border: '1px solid rgba(14, 165, 233, 0.3)'
-      }}>
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center'
-        }}>
-          <div>
-            <h4 style={{ margin: '0 0 5px 0', color: 'white' }}>Mint Price</h4>
-            <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255, 255, 255, 0.7)' }}>
-              Each NFT costs 0.1 SOMI + gas fees
-            </p>
-          </div>
-          <div style={{
-            fontSize: '24px',
-            fontWeight: 'bold',
-            color: '#0ea5e9'
-          }}>
-            0.1 SOMI
-          </div>
-        </div>
-      </div>
       
       <div style={{ marginBottom: '20px', textAlign: 'center' }}>
         <p style={{ fontSize: '16px', marginBottom: '10px', color: 'white' }}>
@@ -334,17 +249,6 @@ export function NFTMinter() {
           <p style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '18px' }}>
             You solved the puzzle! Preparing your NFT...
           </p>
-          <div style={{ marginTop: '20px' }}>
-            <div style={{
-              width: '40px',
-              height: '40px',
-              border: '4px solid rgba(34, 197, 94, 0.3)',
-              borderTop: '4px solid #22c55e',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite',
-              margin: '0 auto'
-            }}></div>
-          </div>
         </div>
       )}
 
@@ -392,7 +296,7 @@ export function NFTMinter() {
             🎉 NFT Minted Successfully!
           </h3>
           <p style={{ margin: 0, color: 'rgba(255, 255, 255, 0.9)' }}>
-            Your SomiPuzzle NFT #{currentSupply} has been minted to your wallet!
+            Your SomiPuzzle NFT has been minted to your wallet!
           </p>
         </div>
       )}
@@ -408,21 +312,6 @@ export function NFTMinter() {
           <p style={{ margin: 0, color: '#ef4444' }}>
             <strong>Error:</strong> {error.message}
           </p>
-          {error.message.includes('Already minted') && (
-            <p style={{ margin: '10px 0 0 0', color: 'rgba(239, 68, 68, 0.8)', fontSize: '14px' }}>
-              💡 You can only mint one NFT per wallet.
-            </p>
-          )}
-          {error.message.includes('Max supply reached') && (
-            <p style={{ margin: '10px 0 0 0', color: 'rgba(239, 68, 68, 0.8)', fontSize: '14px' }}>
-              😞 All NFTs have been minted! Collection is sold out.
-            </p>
-          )}
-          {error.message.includes('Insufficient payment') && (
-            <p style={{ margin: '10px 0 0 0', color: 'rgba(239, 68, 68, 0.8)', fontSize: '14px' }}>
-              💰 Make sure you have at least 0.1 SOMI + gas fees.
-            </p>
-          )}
         </div>
       )}
     </div>

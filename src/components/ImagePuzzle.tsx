@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 interface ImagePuzzleProps {
   imageUrl: string
@@ -6,47 +6,56 @@ interface ImagePuzzleProps {
 }
 
 export function ImagePuzzle({ imageUrl, onSolved }: ImagePuzzleProps) {
-  // ИСПРАВЛЕНО: правильная инициализация массивом
+  // 16 частей пазла (0-15)
   const [tiles, setTiles] = useState<number[]>(() => 
     Array.from({ length: 16 }, (_, i) => i)
   )
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
   const [isShuffled, setIsShuffled] = useState(false)
   const [moveCount, setMoveCount] = useState(0)
 
   const shufflePuzzle = () => {
-    // Создаем новый массив для перемешивания
-    let shuffled = [...Array.from({ length: 16 }, (_, i) => i)]
-    
-    // Простое перемешивание
+    let shuffled = [...tiles]
+    // Перемешиваем Fisher-Yates
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
       ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
     }
     
     setTiles(shuffled)
-    setIsShuffled(true)
+    setSelectedIndex(null)
     setMoveCount(0)
+    setIsShuffled(true)
   }
 
-  const moveTile = (clickedIndex: number) => {
-    const emptyIndex = tiles.indexOf(15)
-    const canMove = [
-      emptyIndex - 1, emptyIndex + 1,
-      emptyIndex - 4, emptyIndex + 4
-    ].includes(clickedIndex)
+  const swapTiles = (index1: number, index2: number) => {
+    const newTiles = [...tiles]
+    ;[newTiles[index1], newTiles[index2]] = [newTiles[index2], newTiles[index1]]
+    setTiles(newTiles)
+    setMoveCount(prev => prev + 1)
+    
+    // Проверка решения - все части в правильном порядке
+    const isSolved = newTiles.every((tile, index) => tile === index)
+    
+    if (isSolved) {
+      setTimeout(() => {
+        onSolved()
+      }, 500)
+    }
+  }
 
-    if (canMove) {
-      const newTiles = [...tiles]
-      ;[newTiles[clickedIndex], newTiles[emptyIndex]] = [newTiles[emptyIndex], newTiles[clickedIndex]]
-      setTiles(newTiles)
-      setMoveCount(prev => prev + 1)
-      
-      // Проверка решения
-      if (newTiles.every((tile, index) => tile === index)) {
-        setTimeout(() => {
-          onSolved()
-        }, 500)
-      }
+  // Обработка клика по плитке
+  const handleTileClick = (index: number) => {
+    if (selectedIndex === null) {
+      // Первый клик - выбираем плитку
+      setSelectedIndex(index)
+    } else if (selectedIndex === index) {
+      // Клик по той же плитке - снимаем выбор
+      setSelectedIndex(null)
+    } else {
+      // Второй клик - меняем местами
+      swapTiles(selectedIndex, index)
+      setSelectedIndex(null)
     }
   }
 
@@ -64,6 +73,9 @@ export function ImagePuzzle({ imageUrl, onSolved }: ImagePuzzleProps) {
               marginBottom: '20px'
             }}
           />
+          <p style={{ color: 'white', marginBottom: '20px' }}>
+            🧩 Click Start to shuffle the puzzle pieces!
+          </p>
           <button 
             onClick={shufflePuzzle}
             style={{
@@ -89,43 +101,70 @@ export function ImagePuzzle({ imageUrl, onSolved }: ImagePuzzleProps) {
             borderRadius: '8px'
           }}>
             <p style={{ margin: 0, color: 'white' }}>
-              Moves: <strong>{moveCount}</strong>
+              Moves: <strong>{moveCount}</strong> | 
+              {selectedIndex !== null ? 
+                ' Now click another tile to swap!' : 
+                ' Click a tile to select it'
+              }
             </p>
           </div>
           
+          {/* Сетка пазла 4x4 */}
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(4, 1fr)',
             gap: '2px',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
             padding: '8px',
             borderRadius: '12px',
             maxWidth: '400px',
-            margin: '0 auto',
-            aspectRatio: '1'
+            width: '400px',
+            height: '400px',
+            margin: '0 auto'
           }}>
-            {tiles.map((tile, index) => (
-              <div
-                key={`tile-${index}-${tile}`}
-                onClick={() => moveTile(index)}
-                style={{
-                  aspectRatio: '1',
-                  backgroundColor: tile === 15 ? 'rgba(255, 255, 255, 0.1)' : '#fff',
-                  border: tile === 15 ? '2px dashed rgba(255, 255, 255, 0.3)' : '1px solid #ddd',
-                  borderRadius: '4px',
-                  cursor: tile === 15 ? 'default' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '20px',
-                  fontWeight: 'bold',
-                  color: '#333'
-                }}
-              >
-                {tile === 15 ? '' : tile + 1}
-              </div>
-            ))}
+            {tiles.map((tile, index) => {
+              // Вычисляем позицию части в оригинальной картинке
+              const sourceRow = Math.floor(tile / 4)
+              const sourceCol = tile % 4
+              const isSelected = index === selectedIndex
+              
+              return (
+                <div
+                  key={`tile-${index}-${tile}`}
+                  onClick={() => handleTileClick(index)}
+                  style={{
+                    backgroundImage: `url(${imageUrl})`,
+                    backgroundSize: '400px 400px',
+                    backgroundPosition: `-${sourceCol * 100}px -${sourceRow * 100}px`,
+                    backgroundRepeat: 'no-repeat',
+                    border: isSelected ? '4px solid #4f46e5' : '1px solid rgba(255, 255, 255, 0.3)',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    overflow: 'hidden',
+                    userSelect: 'none',
+                    boxShadow: isSelected ? '0 0 20px rgba(79, 70, 229, 0.6)' : 'none'
+                  }}
+                />
+              )
+            })}
           </div>
+          
+          <button 
+            onClick={shufflePuzzle}
+            style={{
+              marginTop: '20px',
+              padding: '10px 20px',
+              fontSize: '14px',
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              color: 'white',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              borderRadius: '8px',
+              cursor: 'pointer'
+            }}
+          >
+            🔄 Reshuffle
+          </button>
         </div>
       )}
     </div>

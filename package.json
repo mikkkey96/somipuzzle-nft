@@ -1,32 +1,8 @@
 {
-  "name": "somipuzzle-nft",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-   "preview": "vite preview --host 0.0.0.0 --port $PORT",
-    "start": "vite preview --port $PORT --host 0.0.0.0",
-    "deploy:somnia": "npx hardhat run scripts/deploy.js --network somnia"
-  },
-  "dependencies": {
-    "@rainbow-me/rainbowkit": "^2.0.0",
-    "@tanstack/react-query": "^5.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-helmet-async": "^2.0.5",
-    "viem": "^2.10.0",
-    "wagmi": "^2.5.0"
-  },
-  "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    "@vitejs/plugin-react": "^4.2.0",
-    "dotenv": "^16.3.0",
-    "hardhat": "^2.19.0",
-    "typescript": "^5.0.0",
-    "vite": "^5.1.0"
+    "preview": "vite preview --host 0.0.0.0 --port 4173",
+    "start": "vite preview --host 0.0.0.0 --port $PORT"
   }
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi'
+import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract, useSwitchChain } from 'wagmi'
 import { parseEther } from 'viem'
 import { ImagePuzzle } from './ImagePuzzle'
 import { NFTPreview } from './NFTPreview'
@@ -43,11 +43,12 @@ const CONTRACT_ABI = [
 ] as const
 
 const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS as `0x${string}`
-
 const PUZZLE_IMAGE_URL = 'https://green-unfair-dolphin-882.mypinata.cloud/ipfs/bafybeic4py3mrsblsu67nz54wdrxppos4n3a2lg7ngdpmz2i577qrw3w5u'
+const SOMNIA_CHAIN_ID = 5031
 
 export function NFTMinter() {
-  const { address, isConnected } = useAccount()
+  const { address, isConnected, chain } = useAccount()
+  const { switchChain } = useSwitchChain()
   const [puzzleSolved, setPuzzleSolved] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
   
@@ -90,7 +91,7 @@ export function NFTMinter() {
         abi: CONTRACT_ABI,
         functionName: 'solvePuzzleAndMint',
         args: ['somnia'],
-        value: mintPrice || parseEther('0.1'), // Отправляем 0.1 SOMI как оплату
+        value: mintPrice || parseEther('0.1'),
       })
     } catch (err) {
       console.error('Minting error:', err)
@@ -110,12 +111,45 @@ export function NFTMinter() {
       <div style={{ 
         textAlign: 'center', 
         padding: '40px', 
-        border: '2px dashed #ccc',
+        border: '2px dashed rgba(255, 255, 255, 0.3)',
         borderRadius: '12px',
-        backgroundColor: '#f9f9f9'
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        color: 'white'
       }}>
         <h3>🔗 Connect Your Wallet</h3>
-        <p>Please connect MetaMask or Rabby to start the puzzle!</p>
+        <p>Please connect MetaMask to start the puzzle!</p>
+      </div>
+    )
+  }
+
+  // Проверка сети
+  if (chain?.id !== SOMNIA_CHAIN_ID) {
+    return (
+      <div style={{
+        textAlign: 'center',
+        padding: '30px',
+        backgroundColor: 'rgba(251, 191, 36, 0.1)',
+        borderRadius: '12px',
+        border: '2px solid rgba(251, 191, 36, 0.3)',
+        color: 'white'
+      }}>
+        <h3 style={{ color: '#fbbf24' }}>🔗 Wrong Network</h3>
+        <p>Please switch to Somnia Network to continue</p>
+        <button
+          onClick={() => switchChain({ chainId: SOMNIA_CHAIN_ID })}
+          style={{
+            marginTop: '15px',
+            padding: '12px 24px',
+            backgroundColor: '#f59e0b',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontWeight: 'bold'
+          }}
+        >
+          Switch to Somnia
+        </button>
       </div>
     )
   }
@@ -126,15 +160,16 @@ export function NFTMinter() {
       <div style={{
         textAlign: 'center',
         padding: '40px',
-        border: '2px solid #fbbf24',
+        border: '2px solid rgba(251, 191, 36, 0.5)',
         borderRadius: '12px',
-        backgroundColor: '#fef3c7'
+        backgroundColor: 'rgba(254, 243, 199, 0.1)',
+        color: 'white'
       }}>
-        <h3 style={{ color: '#92400e' }}>🎉 Already Completed!</h3>
-        <p style={{ color: '#78350f', fontSize: '16px' }}>
+        <h3 style={{ color: '#fbbf24' }}>🎉 Already Completed!</h3>
+        <p style={{ fontSize: '16px' }}>
           You have already minted your SomiPuzzle NFT!
         </p>
-        <p style={{ color: '#78350f', fontSize: '14px' }}>
+        <p style={{ fontSize: '14px', opacity: 0.8 }}>
           Each wallet can only mint one NFT to keep the collection fair.
         </p>
       </div>
@@ -150,15 +185,16 @@ export function NFTMinter() {
       <div style={{
         textAlign: 'center',
         padding: '40px',
-        border: '2px solid #ef4444',
+        border: '2px solid rgba(239, 68, 68, 0.5)',
         borderRadius: '12px',
-        backgroundColor: '#fee2e2'
+        backgroundColor: 'rgba(254, 226, 226, 0.1)',
+        color: 'white'
       }}>
-        <h3 style={{ color: '#dc2626' }}>😞 Collection Sold Out</h3>
-        <p style={{ color: '#991b1b', fontSize: '16px' }}>
+        <h3 style={{ color: '#ef4444' }}>😞 Collection Sold Out</h3>
+        <p style={{ fontSize: '16px' }}>
           All 10,000 SomiPuzzle NFTs have been minted!
         </p>
-        <p style={{ color: '#991b1b', fontSize: '14px' }}>
+        <p style={{ fontSize: '14px', opacity: 0.8 }}>
           Thank you for your interest in our collection.
         </p>
       </div>
@@ -170,12 +206,13 @@ export function NFTMinter() {
       maxWidth: '600px', 
       margin: '0 auto', 
       padding: '30px',
-      border: '1px solid #e0e0e0',
+      border: '1px solid rgba(255, 255, 255, 0.2)',
       borderRadius: '16px',
-      backgroundColor: '#fff',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      backdropFilter: 'blur(10px)',
+      color: 'white'
     }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>
+      <h2 style={{ textAlign: 'center', marginBottom: '20px', color: 'white' }}>
         🧩 SomiPuzzle Challenge
       </h2>
       
@@ -183,9 +220,9 @@ export function NFTMinter() {
       <div style={{
         marginBottom: '20px',
         padding: '20px',
-        backgroundColor: '#f8fafc',
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
         borderRadius: '12px',
-        border: '1px solid #e2e8f0'
+        border: '1px solid rgba(255, 255, 255, 0.1)'
       }}>
         <div style={{ 
           display: 'flex', 
@@ -194,8 +231,8 @@ export function NFTMinter() {
           marginBottom: '15px'
         }}>
           <div>
-            <h4 style={{ margin: '0 0 5px 0', color: '#1f2937' }}>Collection Progress</h4>
-            <p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>
+            <h4 style={{ margin: '0 0 5px 0', color: 'white' }}>Collection Progress</h4>
+            <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255, 255, 255, 0.7)' }}>
               {currentSupply} / {maxSupplyNum.toLocaleString()} minted
             </p>
           </div>
@@ -212,7 +249,7 @@ export function NFTMinter() {
         <div style={{
           width: '100%',
           height: '8px',
-          backgroundColor: '#e5e7eb',
+          backgroundColor: 'rgba(255, 255, 255, 0.1)',
           borderRadius: '4px',
           overflow: 'hidden'
         }}>
@@ -229,9 +266,9 @@ export function NFTMinter() {
       <div style={{
         marginBottom: '25px',
         padding: '20px',
-        backgroundColor: '#f0f9ff',
+        backgroundColor: 'rgba(14, 165, 233, 0.1)',
         borderRadius: '12px',
-        border: '1px solid #0ea5e9'
+        border: '1px solid rgba(14, 165, 233, 0.3)'
       }}>
         <div style={{ 
           display: 'flex', 
@@ -239,8 +276,8 @@ export function NFTMinter() {
           alignItems: 'center'
         }}>
           <div>
-            <h4 style={{ margin: '0 0 5px 0', color: '#1f2937' }}>Mint Price</h4>
-            <p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>
+            <h4 style={{ margin: '0 0 5px 0', color: 'white' }}>Mint Price</h4>
+            <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255, 255, 255, 0.7)' }}>
               Each NFT costs 0.1 SOMI + gas fees
             </p>
           </div>
@@ -255,10 +292,10 @@ export function NFTMinter() {
       </div>
       
       <div style={{ marginBottom: '20px', textAlign: 'center' }}>
-        <p style={{ fontSize: '16px', marginBottom: '10px' }}>
+        <p style={{ fontSize: '16px', marginBottom: '10px', color: 'white' }}>
           <strong>Connected:</strong> {address?.slice(0, 6)}...{address?.slice(-4)}
         </p>
-        <p style={{ fontSize: '14px', color: '#6b7280' }}>
+        <p style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.7)' }}>
           🎯 One NFT per wallet • {(maxSupplyNum - currentSupply).toLocaleString()} remaining
         </p>
       </div>
@@ -269,12 +306,13 @@ export function NFTMinter() {
           <div style={{ 
             marginBottom: '20px',
             padding: '15px',
-            backgroundColor: '#fef3c7',
+            backgroundColor: 'rgba(254, 243, 199, 0.1)',
             borderRadius: '8px',
-            textAlign: 'center'
+            textAlign: 'center',
+            border: '1px solid rgba(251, 191, 36, 0.3)'
           }}>
-            <p style={{ margin: 0, color: '#92400e' }}>
-              📝 <strong>Instructions:</strong> Click two tiles to swap them and assemble the complete image!
+            <p style={{ margin: 0, color: '#fbbf24' }}>
+              📝 <strong>Instructions:</strong> Click tiles to swap them and assemble the complete image!
             </p>
           </div>
           <ImagePuzzle imageUrl={PUZZLE_IMAGE_URL} onSolved={handlePuzzleSolved} />
@@ -286,21 +324,21 @@ export function NFTMinter() {
         <div style={{
           textAlign: 'center',
           padding: '40px',
-          backgroundColor: '#f0fdf4',
+          backgroundColor: 'rgba(240, 253, 244, 0.1)',
           borderRadius: '12px',
-          border: '2px solid #22c55e'
+          border: '2px solid rgba(34, 197, 94, 0.5)'
         }}>
-          <h3 style={{ color: '#15803d', marginBottom: '15px' }}>
+          <h3 style={{ color: '#22c55e', marginBottom: '15px' }}>
             🎉 Congratulations!
           </h3>
-          <p style={{ color: '#166534', fontSize: '18px' }}>
+          <p style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '18px' }}>
             You solved the puzzle! Preparing your NFT...
           </p>
           <div style={{ marginTop: '20px' }}>
-            <div className="spinner" style={{
+            <div style={{
               width: '40px',
               height: '40px',
-              border: '4px solid #d1fae5',
+              border: '4px solid rgba(34, 197, 94, 0.3)',
               borderTop: '4px solid #22c55e',
               borderRadius: '50%',
               animation: 'spin 1s linear infinite',
@@ -323,17 +361,17 @@ export function NFTMinter() {
         <div style={{ 
           marginTop: '20px', 
           padding: '15px', 
-          backgroundColor: '#ecfdf5',
-          border: '1px solid #d1fae5',
+          backgroundColor: 'rgba(236, 253, 245, 0.1)',
+          border: '1px solid rgba(209, 250, 229, 0.3)',
           borderRadius: '8px'
         }}>
-          <p style={{ margin: 0, color: '#065f46' }}>
+          <p style={{ margin: 0, color: 'rgba(255, 255, 255, 0.9)' }}>
             <strong>Transaction Hash:</strong>{' '}
             <a 
               href={`https://explorer.somnia.network/tx/${hash}`}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: '#059669', textDecoration: 'underline' }}
+              style={{ color: '#22c55e', textDecoration: 'underline' }}
             >
               {hash.slice(0, 10)}...{hash.slice(-8)}
             </a>
@@ -345,15 +383,15 @@ export function NFTMinter() {
         <div style={{ 
           marginTop: '20px', 
           padding: '20px', 
-          backgroundColor: '#f0fdf4',
-          border: '2px solid #22c55e',
+          backgroundColor: 'rgba(240, 253, 244, 0.1)',
+          border: '2px solid rgba(34, 197, 94, 0.5)',
           borderRadius: '8px',
           textAlign: 'center'
         }}>
-          <h3 style={{ color: '#15803d', margin: '0 0 10px 0' }}>
+          <h3 style={{ color: '#22c55e', margin: '0 0 10px 0' }}>
             🎉 NFT Minted Successfully!
           </h3>
-          <p style={{ margin: 0, color: '#166534' }}>
+          <p style={{ margin: 0, color: 'rgba(255, 255, 255, 0.9)' }}>
             Your SomiPuzzle NFT #{currentSupply} has been minted to your wallet!
           </p>
         </div>
@@ -363,25 +401,25 @@ export function NFTMinter() {
         <div style={{ 
           marginTop: '20px', 
           padding: '15px', 
-          backgroundColor: '#fef2f2',
-          border: '1px solid #fecaca',
+          backgroundColor: 'rgba(254, 242, 242, 0.1)',
+          border: '1px solid rgba(254, 202, 202, 0.3)',
           borderRadius: '8px'
         }}>
-          <p style={{ margin: 0, color: '#dc2626' }}>
+          <p style={{ margin: 0, color: '#ef4444' }}>
             <strong>Error:</strong> {error.message}
           </p>
           {error.message.includes('Already minted') && (
-            <p style={{ margin: '10px 0 0 0', color: '#7f1d1d', fontSize: '14px' }}>
+            <p style={{ margin: '10px 0 0 0', color: 'rgba(239, 68, 68, 0.8)', fontSize: '14px' }}>
               💡 You can only mint one NFT per wallet.
             </p>
           )}
           {error.message.includes('Max supply reached') && (
-            <p style={{ margin: '10px 0 0 0', color: '#7f1d1d', fontSize: '14px' }}>
+            <p style={{ margin: '10px 0 0 0', color: 'rgba(239, 68, 68, 0.8)', fontSize: '14px' }}>
               😞 All NFTs have been minted! Collection is sold out.
             </p>
           )}
           {error.message.includes('Insufficient payment') && (
-            <p style={{ margin: '10px 0 0 0', color: '#7f1d1d', fontSize: '14px' }}>
+            <p style={{ margin: '10px 0 0 0', color: 'rgba(239, 68, 68, 0.8)', fontSize: '14px' }}>
               💰 Make sure you have at least 0.1 SOMI + gas fees.
             </p>
           )}

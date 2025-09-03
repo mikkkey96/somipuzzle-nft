@@ -6,79 +6,120 @@ interface NFTPreviewProps {
 
 export function NFTPreview({ imageUrl, onMint, isMinting }: NFTPreviewProps) {
   return (
-    <div style={{
-      textAlign: 'center',
-      padding: '30px',
-      backgroundColor: '#f0f9ff',
-      borderRadius: '16px',
-      border: '2px solid #0ea5e9'
+    <div style={{ 
+      textAlign: 'center', 
+      padding: '20px',
+      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+      borderRadius: '12px',
+      border: '1px solid rgba(255, 255, 255, 0.1)'
     }}>
-      <h3 style={{ color: '#0c4a6e', marginBottom: '20px' }}>
-        🎉 Puzzle Completed! Your NFT Preview:
-      </h3>
+      <h3 style={{ color: 'white', marginBottom: '20px' }}>🎨 Your NFT Preview</h3>
       
       <div style={{
+        position: 'relative',
         display: 'inline-block',
-        padding: '15px',
-        backgroundColor: 'white',
-        borderRadius: '12px',
-        boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
         marginBottom: '25px'
       }}>
         <img 
           src={imageUrl} 
-          alt="SomiPuzzle NFT"
-          style={{
-            width: '200px',
-            height: '200px',
-            borderRadius: '8px',
-            objectFit: 'cover'
+          alt="NFT Preview" 
+          style={{ 
+            width: '300px',
+            height: '300px',
+            borderRadius: '16px',
+            border: '3px solid #ffd700',
+            boxShadow: '0 8px 32px rgba(255, 215, 0, 0.3)'
           }}
         />
-        <div style={{ 
-          marginTop: '15px', 
-          padding: '10px',
-          backgroundColor: '#f8fafc',
-          borderRadius: '8px'
+        <div style={{
+          position: 'absolute',
+          top: '-10px',
+          right: '-10px',
+          background: 'linear-gradient(45deg, #ffd700, #ffed4e)',
+          color: '#000',
+          padding: '8px 12px',
+          borderRadius: '20px',
+          fontSize: '14px',
+          fontWeight: 'bold',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
         }}>
-          <h4 style={{ margin: '0 0 5px 0', color: '#1f2937' }}>
-            SomiPuzzle NFT
-          </h4>
-          <p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>
-            Unique puzzle solver achievement
-          </p>
+          ✨ RARE
         </div>
       </div>
 
-      <div style={{ marginBottom: '20px' }}>
-        <p style={{ fontSize: '16px', color: '#0c4a6e', marginBottom: '10px' }}>
-          Ready to mint your achievement NFT for <strong>0.1 SOMI</strong>?
-        </p>
-        <p style={{ fontSize: '14px', color: '#0369a1' }}>
-          This NFT proves you solved the SomiPuzzle challenge!
-        </p>
-        <p style={{ fontSize: '12px', color: '#0369a1', marginTop: '5px' }}>
-          💰 Payment goes directly to the creator&apos;s wallet
-        </p>
+      <div style={{
+        marginBottom: '25px',
+        padding: '20px',
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        borderRadius: '12px',
+        textAlign: 'left'
+      }}>
+        <h4 style={{ color: 'white', marginBottom: '15px', textAlign: 'center' }}>NFT Details</h4>
+        <div style={{ color: 'rgba(255, 255, 255, 0.9)', lineHeight: '1.6' }}>
+          <p><strong>Name:</strong> SomiPuzzle #{Math.floor(Math.random() * 10000) + 1}</p>
+          <p><strong>Blockchain:</strong> Somnia Network</p>
+          <p><strong>Type:</strong> Puzzle Achievement NFT</p>
+          <p><strong>Rarity:</strong> Limited Edition</p>
+          <p><strong>Price:</strong> 0.1 SOMI</p>
+        </div>
       </div>
 
       <button
         onClick={onMint}
         disabled={isMinting}
         style={{
-          padding: '15px 30px',
-          fontSize: '18px',
+          padding: '18px 36px',
+          fontSize: '20px',
           fontWeight: 'bold',
+          backgroundColor: isMinting ? 'rgba(107, 114, 128, 0.5)' : 'linear-gradient(45deg, #10b981, #059669)',
           color: 'white',
-          backgroundColor: isMinting ? '#9ca3af' : '#22c55e',
           border: 'none',
-          borderRadius: '12px',
+          borderRadius: '16px',
           cursor: isMinting ? 'not-allowed' : 'pointer',
+          transition: 'all 0.3s ease',
+          boxShadow: isMinting ? 'none' : '0 8px 32px rgba(16, 185, 129, 0.3)',
+          transform: isMinting ? 'none' : 'translateY(-2px)',
           minWidth: '200px'
         }}
+        onMouseOver={(e) => {
+          if (!isMinting) {
+            e.currentTarget.style.transform = 'translateY(-4px)'
+            e.currentTarget.style.boxShadow = '0 12px 40px rgba(16, 185, 129, 0.4)'
+          }
+        }}
+        onMouseOut={(e) => {
+          if (!isMinting) {
+            e.currentTarget.style.transform = 'translateY(-2px)'
+            e.currentTarget.style.boxShadow = '0 8px 32px rgba(16, 185, 129, 0.3)'
+          }
+        }}
       >
-        {isMinting ? '🔄 Minting...' : '🎯 Mint NFT (0.1 SOMI)'}
+        {isMinting ? (
+          <span>
+            <span style={{
+              display: 'inline-block',
+              width: '20px',
+              height: '20px',
+              border: '2px solid rgba(255,255,255,0.3)',
+              borderTop: '2px solid white',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              marginRight: '10px'
+            }}></span>
+            Minting...
+          </span>
+        ) : (
+          '🎯 Mint Your NFT'
+        )}
       </button>
+
+      <p style={{ 
+        marginTop: '15px', 
+        fontSize: '14px', 
+        color: 'rgba(255, 255, 255, 0.7)' 
+      }}>
+        🔒 This will be permanently recorded on the Somnia blockchain
+      </p>
     </div>
   )
 }

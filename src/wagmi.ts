@@ -25,7 +25,7 @@ const somnia = {
 
 export const config = getDefaultConfig({
   appName: 'SomiPuzzle',
-  projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'cd75b4f2-324b-410a-829e-0f94d96a50e4',
+  projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || '1926b41c73e81b702d67de732af0d193',
   chains: [somnia, mainnet],
   ssr: false,
 })
